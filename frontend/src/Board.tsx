@@ -90,7 +90,7 @@ export function Board({
         </div>
       )}
 
-      <TradePanel session={session} trades={((state as unknown as {trades: Parameters<typeof TradePanel>[0]["trades"]}).trades || [])} collections={state.collections} onRefresh={()=>{}} />
+      <TradePanel session={session} trades={state.trades || []} collections={state.collections} onRefresh={()=>{}} />
       {!waiting && (
         <>
           <div className="card status-bar">

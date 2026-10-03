@@ -20,6 +20,11 @@ _HTTP_STATUS = {
     "game_full": 409,
     "name_taken": 409,
     "not_enough_players": 409,
+    "trade_not_found": 404,
+    # Stale revision / failed ownership arbitration are conflicts: the
+    # request understood the rules but raced with another state change.
+    "revision_mismatch": 409,
+    "card_unavailable": 409,
 }
 
 
@@ -192,6 +197,8 @@ async def _handle_ws_message(
 
 
 def _full_state(state: Any) -> Dict[str, Any]:
+    from .trades import collections as trade_collections, project as trade_project
+
     return {
         "game_id": state.game_id,
         "status": state.status,
@@ -203,6 +210,8 @@ def _full_state(state: Any) -> Dict[str, Any]:
             pid: {"card_id": c, "mode": m} for pid, (c, m) in state.picks.items()
         },
         "history": state.history,
+        "trades": trade_project(state),
+        "collections": trade_collections(state),
         "version": state.version,
     }
 

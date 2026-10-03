@@ -233,10 +233,14 @@ class GameService:
             except TradeError as exc:
                 raise GameError(exc.code)
             for event in events:
-                apply_event(room.state,event)
+                apply_event(room.state, event)
             if events:
-                await self._persist_and_broadcast(room,[event for event in events if event["type"] != "trade_committed"])
-            return project(room.state,player_id)
+                # Every trade event — including trade_committed — must be
+                # durable: replay derives collections from committed offers,
+                # so a missing commit would make reconnect disagree with the
+                # live view.
+                await self._persist_and_broadcast(room, events)
+            return project(room.state, player_id)
 
     async def force_timeout(self, game_id: str) -> None:
         """Admin/test hook: resolve the live round as if its clock expired."""

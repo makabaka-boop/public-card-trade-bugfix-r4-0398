@@ -26,6 +26,22 @@ export interface Seat {
   seat: number;
 }
 
+export interface TradeOffer {
+  from: string;
+  to: string;
+  card_id: number;
+}
+
+export interface TradeView {
+  id: string;
+  revision: number;
+  author: string;
+  offers: TradeOffer[];
+  participants: string[];
+  confirmed: string[];
+  status: "open" | "committed" | "cancelled";
+}
+
 export interface DraftStateView {
   status: "waiting" | "active" | "completed";
   game_id: string;
@@ -39,6 +55,7 @@ export interface DraftStateView {
   my_pick: { card_id: number; mode: "manual" | "auto" } | null;
   lock_state: Record<string, LockState>;
   reveals: Reveal[];
+  trades: TradeView[];
   collections: Record<string, number[]>;
   version: number;
 }

@@ -18,6 +18,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 from .cards import CARDS
+from . import trades as trades_module
 
 AUTO = "auto"
 MANUAL = "manual"
@@ -94,8 +95,7 @@ def apply_event(state: DraftState, event: Dict[str, Any]) -> DraftState:
         # Keep packs/picks so open_round_event can rotate the leftovers;
         # the following round_opened event overwrites them.
     elif etype.startswith("trade_"):
-        from .trades import apply_event as apply_trade_event
-        apply_trade_event(state,event)
+        trades_module.apply_event(state, event)
     elif etype == "game_completed":
         state.status = "completed"
         state.deadline = None
@@ -286,12 +286,11 @@ def project(state: DraftState, viewer_id: Optional[str]) -> Dict[str, Any]:
             }
             for entry in state.history
         ],
-        "trades": __import__(__package__ + ".trades",fromlist=["project"]).project(state),
+        "trades": trades_module.project(state),
         "collections": _collections(state),
         "version": state.version,
     }
 
 
 def _collections(state: DraftState) -> Dict[str, List[int]]:
-    from .trades import collections
-    return collections(state)
+    return trades_module.collections(state)

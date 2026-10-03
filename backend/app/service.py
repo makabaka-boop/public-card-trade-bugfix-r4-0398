@@ -235,7 +235,10 @@ class GameService:
             for event in events:
                 apply_event(room.state,event)
             if events:
-                await self._persist_and_broadcast(room,[event for event in events if event["type"] != "trade_committed"])
+                # The commit event is part of the durable log too: without it
+                # a replay would show the trade as never completed and the
+                # collections would diverge from the live view.
+                await self._persist_and_broadcast(room,events)
             return project(room.state,player_id)
 
     async def force_timeout(self, game_id: str) -> None:
